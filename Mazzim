@@ -1,0 +1,233 @@
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+#include <stdlib.h>
+
+#define MaxnRazza 100
+char nomiElfici[MaxnRazza][20], nomiNani[MaxnRazza][20], nomiHalfling[MaxnRazza][20], nomiUmani[MaxnRazza][20];
+int numNomiElfici = 0, numNomiNani = 0, numNomiHalfling = 0, numNomiUmani = 0;
+typedef struct NPC {
+    char nome[20];
+    char sesso[20];
+    char razza[20];
+    char origine[20];
+    char atteggiamento[20];
+}NPC;
+
+void stampaContenutoFile(char *nomeFile) {
+    FILE *fp = fopen(nomeFile, "r");
+    char riga[20];
+
+    printf("Contenuto del file %s:\n", nomeFile);
+    while (fgets(riga, 20, fp) != NULL) {
+        printf("%s", riga);
+    }
+    printf("\n");
+
+    fclose(fp);
+}
+
+void creaFileNomi(char *nomeFile, char nomi[][20], int numNomi) {
+    FILE *fp = fopen(nomeFile, "w");
+
+    int i;
+    for (i = 0; i < numNomi; i++) {
+        fprintf(fp, "%s\n", nomi[i]);
+    }
+
+    fclose(fp);
+}
+void caricaNomiDaFile(char *nomeFile, char nomi[][20], int *numNomi) {
+    FILE *fp = fopen(nomeFile, "r");
+
+    char nome[20];
+    while (fscanf(fp, "%s", nome) != EOF) {
+        strcpy(nomi[*numNomi], nome);
+        (*numNomi)++;
+    }
+
+    fclose(fp);
+}
+void aggiungiNomiaFile(char *nomeFile, char nomi[][20], int *numNomi) {
+    FILE *fp = fopen(nomeFile, "a");
+
+    char nome[20];
+    while (1) {
+        printf("DB %s\n", nomeFile);
+        printf("Inserisci un nome (per terminare inserire 'fine'): ");
+        scanf("%s", nome);
+        if (strcmp(nome, "fine") == 0) {
+            break;
+        }
+        strcpy(nomi[*numNomi], nome);
+        fprintf(fp, "%s\n", nome);
+        (*numNomi)++;
+    }
+
+    fclose(fp);
+}
+void generaNPC(NPC *npc, int sceltaRazza, int sceltaOrigine, int sceltaAtteggiamento, char nomiElfici[][20], char nomiNani[][20], char nomiHalfling[][20], char nomiUmani[][20], int numNomiElfici, int numNomiNani, int numNomiHalfling, int numNomiUmani) {
+    int sceltaSesso = rand() % 3 + 1;
+    int indiceNome;
+
+    if (!npc) {
+        printf("generaNPC: Errore, il puntatore npc e' nullo\n");
+        return;
+    }
+    if (!nomiElfici || !nomiNani || !nomiHalfling || !nomiUmani) {
+        printf("generaNPC: Errore, uno dei puntatori ai nomi e' nullo\n");
+        return;
+    }
+    if (sceltaSesso == 1) {
+        strcpy(npc->sesso, "Maschio");
+    }
+    else if (sceltaSesso == 2) {
+        strcpy(npc->sesso, "Femmina");
+    }
+    else {
+        strcpy(npc->sesso, "Casuale");
+    }
+
+    if (sceltaRazza == 1) {
+        strcpy(npc->razza, "Elfo");
+        //indiceNome = rand() % numNomiElfici;
+        indiceNome = 1;
+        strcpy(npc->nome, nomiElfici[indiceNome]);
+    }
+    else if (sceltaRazza == 2) {
+        strcpy(npc->razza, "Nano");
+        indiceNome = rand() % numNomiNani;
+        strcpy(npc->nome, nomiNani[indiceNome]);
+    }
+    else if (sceltaRazza == 3) {
+        strcpy(npc->razza, "Halfling");
+        indiceNome = rand() % numNomiHalfling;
+        strcpy(npc->nome, nomiHalfling[indiceNome]);
+    }
+    else {
+        strcpy(npc->razza, "Umano");
+        indiceNome = rand() % numNomiUmani;
+        strcpy(npc->nome, nomiUmani[indiceNome]);
+    }
+
+    if (sceltaOrigine == 1) {
+        strcpy(npc->origine, "Nobili");
+    }
+    else if (sceltaOrigine == 2) {
+        strcpy(npc->origine, "Militari");
+    }
+    else if (sceltaOrigine == 3) {
+        strcpy(npc->origine, "Criminali");
+    }
+    else if (sceltaOrigine == 4) {
+        strcpy(npc->origine, "Accademiche");
+    }
+    else if (sceltaOrigine == 5) {
+        strcpy(npc->origine, "Umili");
+    }
+    else {
+        strcpy(npc->origine, "Religioso");
+    }
+    if (sceltaAtteggiamento == 1) {
+        strcpy(npc->atteggiamento, "Amichevole");
+    }
+    else if (sceltaAtteggiamento == 2) {
+        strcpy(npc->atteggiamento, "Neutrale");
+    }
+    else {
+        strcpy(npc->atteggiamento, "Ostile");
+    }
+}
+
+
+
+    int main() {
+    int scelta, sceltaRazza = -1, sceltaOrigine = -1, sceltaAtteggiamento = -1, quantita, i;
+    NPC npc[5];
+    char nomeFile[30] = "Nomi Elfici.txt";
+    stampaContenutoFile(nomeFile);
+    printf("1\n");
+
+    printf("Scegli cosa fare:\n1. Creare i file di input per i nomi delle varie razze\n2. "
+           "Aggiungere altri nomi ai file esistenti\n3. Avviare il programma\n");
+    scanf("%d", &scelta);
+
+    if (scelta == 1) {
+        char nomeFile[30];
+        //printf("Inserisci il nome del file per i nomi degli Elfi: ");
+        //scanf("%s", nomeFile);
+        strcpy(nomeFile, "Nomi Elfici.txt");
+        creaFileNomi(nomeFile, nomiElfici, numNomiElfici);
+        //printf("Inserisci il nome del file per i nomi dei Nani: ");
+        //scanf("%s", nomeFile);
+        strcpy(nomeFile, "Nomi Nanici.txt");
+        creaFileNomi(nomeFile, nomiNani, numNomiNani);
+        //printf("Inserisci il nome del file per i nomi dei Halfling: ");
+        //scanf("%s", nomeFile);
+        strcpy(nomeFile, "Nomi Halfling.txt");
+        creaFileNomi(nomeFile, nomiHalfling, numNomiHalfling);
+        //printf("Inserisci il nome del file per i nomi degli Umani: ");
+        //scanf("%s", nomeFile);
+        strcpy(nomeFile, "Nomi Umani.txt");
+        creaFileNomi(nomeFile, nomiUmani, numNomiUmani);
+    }
+    else if (scelta == 2) {
+        char nomeFile[30];
+        //printf("Inserisci il nome del file per i nomi degli Elfi: ");
+        //scanf("%s", nomeFile);
+        strcpy(nomeFile, "Nomi Elfici.txt");
+        caricaNomiDaFile(nomeFile, nomiElfici, &numNomiElfici);
+        aggiungiNomiaFile(nomeFile, nomiElfici, &numNomiElfici);
+
+        //printf("Inserisci il nome del file per i nomi dei Nani: ");
+        //scanf("%s", nomeFile);
+        strcpy(nomeFile, "Nomi Nanici.txt");
+        caricaNomiDaFile(nomeFile, nomiNani, &numNomiNani);
+        aggiungiNomiaFile(nomeFile, nomiNani, &numNomiNani);
+
+        //printf("Inserisci il nome del file per i nomi dei Halfling: ");
+        //scanf("%s", nomeFile);
+        strcpy(nomeFile, "Nomi Halfling.txt");
+        caricaNomiDaFile(nomeFile, nomiHalfling, &numNomiHalfling);
+        aggiungiNomiaFile(nomeFile, nomiHalfling, &numNomiHalfling);
+
+        //printf("Inserisci il nome del file per i nomi degli Umani: ");
+        //scanf("%s", nomeFile);
+        strcpy(nomeFile, "Nomi Umani.txt");
+        caricaNomiDaFile(nomeFile, nomiUmani, &numNomiUmani);
+        aggiungiNomiaFile(nomeFile, nomiUmani, &numNomiUmani);
+    }
+    else {
+        printf("Scegli la razza degli NPC (1 = Elfo, 2 = Nano, 3 = Halfling, 4 = Umano): ");
+        scanf("%d", &sceltaRazza);
+
+        printf("Scegli l'origine degli NPC (1 = Nobili, 2 = Militari, 3 = Criminali, 4 = Accademiche, 5 = Umili, 6 = Religioso): ");
+        scanf("%d", &sceltaOrigine);
+
+        printf("Scegli l'atteggiamento degli NPC (1 = Amichevole, 2 = Neutrale, 3 = Ostile): ");
+        scanf("%d", &sceltaAtteggiamento);
+
+        printf("Inserisci il numero di NPC da generare: ");
+        scanf("%d", &quantita);
+
+        for (i = 0; i < quantita; i++) {
+            generaNPC(&npc[i], sceltaRazza, sceltaOrigine, sceltaAtteggiamento, nomiElfici, nomiNani, nomiHalfling, nomiUmani, numNomiElfici, numNomiNani, numNomiHalfling, numNomiUmani);
+        }
+
+        printf("Report:\n");
+        for (i = 0; i < quantita; i++) {
+            printf("NPC %d: Nome = %s, Sesso = %s, Razza = %s, Origine = %s, Atteggiamento = %s\n", i + 1, npc[i].nome, npc[i].sesso, npc[i].razza, npc[i].origine, npc[i].atteggiamento);
+        }
+    }
+    return 0;
+}
+/*In questo modo, l'utente ha la possibilità di scegliere se creare i file di input per i nomi delle varie razze,
+ * aggiungere nomi ai file esistenti o avviare il programma.
+Se l'utente sceglie di creare i file, verrà chiesto di inserire i nomi per ciascuna razza e verranno creati i
+ file con i nomi inseriti.
+Se l'utente sceglie di aggiungere nomi ai file esistenti, verrà chiesto di inserire i nomi per ciascuna razza
+ e questi verranno aggiunti ai file esistenti.
+Se l'utente sceglie di avviare il programma, verrà chiesto di scegliere la razza, l'origine e l'atteggiamento
+ dei NPC da generare e la quantità di NPC da generare. Il programma utilizzerà i nomi presenti nei file per
+ generare i NPC e mostrerà un report con i dettagli dei NPC generati.
+In questo modo non c'è un limite di nomi per razza, poichè l'utente può sempre aggiungere nomi ai file esistenti.*/
